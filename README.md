@@ -246,10 +246,6 @@ mvn clean compile
 
 # Run the analyzer
 mvn exec:java -Dexec.mainClass="com.controlflow.Main"
-
-# Or package and run as a JAR
-mvn clean package
-java -jar target/ControlFlowAnalyzer-1.0-SNAPSHOT.jar
 ```
 
 > **Important:** You must run `mvn generate-sources` (or `mvn compile`) **before** opening the project in an IDE, so the ANTLR-generated files (`ControlFlowLexer`, `ControlFlowParser`, `ControlFlowBaseVisitor`) are present and the IDE can resolve them.
@@ -322,7 +318,7 @@ Program
 Test cases are located in `ControlFlowParserTest.java`. Run them with:
 
 ```bash
-mvn test
+mvn exec:java -Dexec.mainClass="com.controlflow.ControlFlowParserTest"
 ```
 
 The test suite covers:

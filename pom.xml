@@ -41,7 +41,7 @@
                         Both must align with your Java package (com/controlflow).
                         The @header in the .g4 file adds the package declaration.
                     -->
-                    <sourceDirectory>${project.basedir}/src/main/antlr4</sourceDirectory>
+                    <sourceDirectory>${project.basedir}/src/main/antlr4/com/controlflow</sourceDirectory>
                     <outputDirectory>${project.build.directory}/generated-sources/antlr4</outputDirectory>
                 </configuration>
                 <executions>
