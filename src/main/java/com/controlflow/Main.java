@@ -75,7 +75,37 @@ public class Main {
             System.out.println("── Abstract Syntax Tree (AST) ──────────");
             printAST(ast, 0);
             System.out.println();
-            System.out.println("═══════════════════════════════════════");
+
+            StringBuilder dotBuilder = new StringBuilder();
+            dotBuilder.append("digraph AST {\n");
+            dotBuilder.append("  node [fontname=\"Arial\"];\n");
+            generateDOT(ast, dotBuilder, new int[]{0});
+            dotBuilder.append("}\n");
+
+            try (java.io.PrintWriter out = new java.io.PrintWriter("ast.dot")) {
+                out.println(dotBuilder.toString());
+                System.out.println("✓ AST DOT file generated: ast.dot");
+            } catch (IOException e) {
+                System.err.println("Error writing DOT file: " + e.getMessage());
+            }
+
+            try {
+                ProcessBuilder pb = new ProcessBuilder("dot", "-Tpng", "ast.dot", "-o", "ast.png");
+                Process process = pb.start();
+
+                int exitCode = process.waitFor();
+                if (exitCode == 0) {
+                    System.out.println("✓ Success! Image generated: ast.png");
+
+                    // new ProcessBuilder("xdg-open", "ast.png").start();
+                } else {
+                    System.err.println("✗ Error: Graphviz failed with exit code " + exitCode);
+                }
+            } catch (Exception e) {
+                System.err.println("✗ Could not generate image. Make sure 'graphviz' is installed.");
+                System.err.println("  Hint: sudo apt install graphviz");
+            }
+
         } catch (IOException e) {
             System.err.println("Error: Could not read file. " + e.getMessage());
         }
@@ -105,6 +135,21 @@ public class Main {
         // Recursively print each child
         for (ASTNode child : node.children) {
             printAST(child, depth + 1);
+        }
+    }
+
+    private static void generateDOT(ASTNode node, StringBuilder sb, int[] nodeCounter) {
+        if (node == null) return;
+
+        int currentId = nodeCounter[0]++;
+        String cleanLabel = node.label.replace("\"", "\\\"").replace(":", " ");
+
+        sb.append(String.format("  node%d [label=\"%s\"];\n", currentId, cleanLabel));
+
+        for (ASTNode child : node.children) {
+            int childId = nodeCounter[0];
+            sb.append(String.format("  node%d -> node%d;\n", currentId, childId));
+            generateDOT(child, sb, nodeCounter);
         }
     }
 

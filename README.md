@@ -238,6 +238,11 @@ Maven build file with three plugins:
 
 - Java 11 or higher
 - Maven 3.6+
+- Graphviz (required for AST visualization — generates `ast.png` from `ast.dot`)
+
+```bash
+sudo apt install graphviz
+```
 
 ### Clone & Build
 

@@ -1,0 +1,7 @@
+digraph AST {
+  node [fontname="Arial"];
+  node0 [label="Program"];
+  node0 -> node1;
+  node1 [label="Stmt  x=10"];
+}
+
