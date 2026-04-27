@@ -3,6 +3,7 @@ package com.controlflow;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import java.io.IOException;
 
 /**
  * Main — Entry point for the Control Flow Syntax Analyzer.
@@ -22,59 +23,62 @@ public class Main {
         // This sample exercises: if, if-else, for, nested structures, and blocks.
         // Change this string to test different programs.
 
-        String input =
-                "if (x < 10) { y = x + 1; } " +
-                        "if (x == 0) { y = 1; } else { y = 2; } " +
-                        "for (int i = 0; i < 5; i++) { " +
-                        "    if (i == 3) { x = i; } else { x = 0; } " +
-                        "}";
+        try {
 
-        System.out.println("═══════════════════════════════════════");
-        System.out.println("  Control Flow Syntax Analyzer & Parser");
-        System.out.println("═══════════════════════════════════════");
-        System.out.println();
-        System.out.println("── Input Code ──────────────────────────");
-        System.out.println(formatInput(input));
-        System.out.println();
+            String input = "x = 10;";
 
-        // ── 2. Lexer & Parser ────────────────────────────────────────────────
-
-        ControlFlowLexer  lexer  = new ControlFlowLexer(CharStreams.fromString(input));
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        ControlFlowParser parser = new ControlFlowParser(tokens);
-
-        // Capture syntax errors — ANTLR prints them to stderr by default
-        parser.removeErrorListeners();
-        SyntaxErrorListener errorListener = new SyntaxErrorListener();
-        parser.addErrorListener(errorListener);
-
-        ParseTree parseTree = parser.program();
-
-        // Report errors if any
-        if (errorListener.hasErrors()) {
-            System.out.println("── Syntax Errors ───────────────────────");
-            for (String error : errorListener.getErrors()) {
-                System.out.println("  ERROR: " + error);
-            }
+            System.out.println("═══════════════════════════════════════");
+            System.out.println("  Control Flow Syntax Analyzer & Parser");
+            System.out.println("═══════════════════════════════════════");
             System.out.println();
-            System.out.println("Parsing failed. Fix the errors above and try again.");
-            return;
+//            System.out.println("── Input Code ──────────────────────────");
+//            System.out.println(formatInput(input));
+//            System.out.println();
+
+            // ── 2. Lexer & Parser ────────────────────────────────────────────────
+
+            // Input from code
+            //        ControlFlowLexer  lexer  = new ControlFlowLexer(CharStreams.fromString(input));
+            // Input from file
+            ControlFlowLexer lexer = new ControlFlowLexer(CharStreams.fromFileName("input.txt"));
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            ControlFlowParser parser = new ControlFlowParser(tokens);
+
+            // Capture syntax errors — ANTLR prints them to stderr by default
+            parser.removeErrorListeners();
+            SyntaxErrorListener errorListener = new SyntaxErrorListener();
+            parser.addErrorListener(errorListener);
+
+            ParseTree parseTree = parser.program();
+
+            // Report errors if any
+            if (errorListener.hasErrors()) {
+                System.out.println("── Syntax Errors ───────────────────────");
+                for (String error : errorListener.getErrors()) {
+                    System.out.println("  ERROR: " + error);
+                }
+                System.out.println();
+                System.out.println("Parsing failed. Fix the errors above and try again.");
+                return;
+            }
+
+            System.out.println("✓ Syntax validation passed — no errors found.");
+            System.out.println();
+
+            // ── 3. Build AST via Visitor ─────────────────────────────────────────
+
+            ControlFlowASTVisitor visitor = new ControlFlowASTVisitor();
+            ASTNode ast = visitor.visit(parseTree);
+
+            // ── 4. Print AST ─────────────────────────────────────────────────────
+
+            System.out.println("── Abstract Syntax Tree (AST) ──────────");
+            printAST(ast, 0);
+            System.out.println();
+            System.out.println("═══════════════════════════════════════");
+        } catch (IOException e) {
+            System.err.println("Error: Could not read file. " + e.getMessage());
         }
-
-        System.out.println("✓ Syntax validation passed — no errors found.");
-        System.out.println();
-
-        // ── 3. Build AST via Visitor ─────────────────────────────────────────
-
-        ControlFlowASTVisitor visitor = new ControlFlowASTVisitor();
-        ASTNode ast = visitor.visit(parseTree);
-
-        // ── 4. Print AST ─────────────────────────────────────────────────────
-
-        System.out.println("── Abstract Syntax Tree (AST) ──────────");
-        printAST(ast, 0);
-        System.out.println();
-        System.out.println("═══════════════════════════════════════");
     }
 
     // ─── AST Printer ─────────────────────────────────────────────────────────
